@@ -1,729 +1,109 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WOS 누가 얼마나 성장했을까요?</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-    
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 50%, #e0f2fe 100%);
-      background-attachment: fixed;
-    }
-
-    /* 프리미엄 화이트 프로스트 글래스 효과 */
-    .premium-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.8);
-      box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.12);
-    }
-
-    /* 호버 애니메이션 */
-    .hover-lift {
-      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    .hover-lift:hover {
-      transform: translateY(-3px);
-      border-color: rgba(56, 189, 248, 0.5);
-      box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.15);
-    }
-
-    /* 부드러운 스크롤바 커스텀 */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(241, 245, 249, 0.8);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(14, 165, 233, 0.3);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(14, 165, 233, 0.5);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOS Alliance Tracker</title>
+    <!-- Tailwind CSS 및 FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f0f7ff; color: #1e293b; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .ice-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid #bae6fd; }
+        .btn-theme { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
+    </style>
 </head>
-<body class="text-slate-800 min-h-screen relative overflow-x-hidden pb-12">
+<body class="p-4 md:p-8">
 
-  <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3 pointer-events-none"></div>
-
-  <!-- 메인 레이아웃 컨테이너 -->
-  <div class="max-w-7xl mx-auto px-4 py-6 relative z-10">
-    
-    <!-- HEADER_START -->
-    <header class="flex flex-col md:flex-row justify-between items-center mb-6 pb-5 border-b border-sky-100">
-      <div class="flex items-center space-x-3.5 mb-4 md:mb-0">
-        <div class="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-sky-500/20 border border-white">
-          <i class="fa-solid fa-snowflake text-white text-xl animate-pulse"></i>
-        </div>
+    <!-- Header -->
+    <header class="max-w-5xl mx-auto mb-8 flex justify-between items-center">
         <div>
-          <h1 class="text-2xl font-black tracking-tight text-slate-900 flex items-center">
-            WOS 누가 얼마나 성장했을까요?
-            <span class="ml-2.5 text-[10px] font-bold text-sky-600 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-md tracking-normal">CP TRACKER</span>
-          </h1>
-          <p class="text-[11px] text-sky-700/80 font-bold tracking-wider">연맹원 무공장비 2주간 성장 데이터 판독기</p>
+            <h1 class="text-3xl font-black text-sky-900 tracking-tight">WOS ALLIANCE TRACKER</h1>
+            <p class="text-sky-600 font-medium">실시간 전투 데이터 및 기여도 관리</p>
         </div>
-      </div>
-      
-      <!-- 상단 액션 바 -->
-      <div class="flex flex-col sm:flex-row items-center gap-2.5">
-        <span class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-700 border border-sky-100 shadow-sm">
-          <i class="fa-solid fa-calendar-days mr-2 text-sky-500"></i> 분석 주기: 05/28 → 06/11
+        <span id="analysis-date-range" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-white text-sky-700 border border-sky-100 shadow-sm">
+            <i class="fa-solid fa-sync fa-spin mr-2"></i> 데이터 동기화 중...
         </span>
-        <button onclick="copyAllianceReport()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white text-xs font-bold rounded-lg transition-all shadow-sm flex items-center">
-          <i class="fa-solid fa-share-nodes mr-1.5"></i> 결과 복사
-        </button>
-      </div>
     </header>
-    <!-- HEADER_END -->
 
-    <!-- [상단 배치] 명예의 전당 (성장률 TOP 3) -->
-    <section class="mb-8">
-      <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3.5 flex items-center">
-        <span class="w-2 h-3.5 bg-gradient-to-b from-sky-400 to-blue-600 rounded mr-2"></span>
-        🏆 명예의 전당 (성장률 TOP 3)
-      </h2>
-      <div id="podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <!-- JS 동적 렌더링 -->
-      </div>
-    </section>
-
-    <!-- 메인 대시보드 컨텐츠 영역 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- 상세 리스트 및 다중 제어 필터 -->
-      <section class="premium-card rounded-2xl overflow-hidden border border-slate-200 lg:col-span-2 flex flex-col justify-between">
-        <div>
-          <!-- 필터 및 정렬 바: 1단 가로 정렬 고도화 -->
-          <div class="p-5 bg-white/90 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div class="flex-shrink-0">
-              <h3 class="font-black text-base text-slate-900">연맹원 전체 순위</h3>
-              <p class="text-[11px] text-slate-500 mt-0.5">맹원을 클릭하면 상세정보를 확인할 수 있어요</p>
+    <!-- Main Dashboard -->
+    <main class="max-w-5xl mx-auto space-y-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="ice-card p-6 rounded-2xl shadow-lg border-t-4 border-sky-400">
+                <p class="text-sky-500 font-bold text-sm uppercase">총 활동 인원</p>
+                <h2 id="total-members" class="text-3xl font-black mt-1">0</h2>
             </div>
-
-            <!-- 정밀 다중 필터 및 검색: 한 줄 배치 유도 -->
-            <div class="flex flex-wrap items-center gap-2 lg:justify-end">
-              <!-- 검색창 -->
-              <div class="relative">
-                <input 
-                  type="text" 
-                  id="search-input" 
-                  placeholder="맹원 검색..." 
-                  class="w-full sm:w-36 pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-sky-500 text-slate-800 placeholder-slate-400"
-                />
-                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-[10px]"></i>
-              </div>
-
-              <!-- 성장 등급 필터 -->
-              <div class="relative">
-                <select 
-                  id="tag-filter" 
-                  class="w-full sm:w-28 pl-2 pr-6 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:border-sky-500 text-slate-700 appearance-none cursor-pointer"
-                >
-                  <option value="all">🏷️ 전체 등급</option>
-                  <option value="high">🔥 폭풍 성실</option>
-                  <option value="mid">❄️ 안정 성장</option>
-                  <option value="low">⛄ 현상 유지</option>
-                </select>
-                <i class="fa-solid fa-caret-down absolute right-2 top-2.5 text-slate-400 text-[9px] pointer-events-none"></i>
-              </div>
-
-              <!-- 정렬 토글 버튼 -->
-              <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200/60">
-                <button 
-                  id="btn-sort-growth" 
-                  onclick="setPrimarySort('growth')" 
-                  class="px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-600 hover:text-slate-900"
-                >
-                  성장률 기준
-                </button>
-                <button 
-                  id="btn-sort-power" 
-                  onclick="setPrimarySort('power')" 
-                  class="px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-600 hover:text-slate-900"
-                >
-                  상위투력 기준
-                </button>
-              </div>
+            <div class="ice-card p-6 rounded-2xl shadow-lg border-t-4 border-sky-400">
+                <p class="text-sky-500 font-bold text-sm uppercase">평균 성장률</p>
+                <h2 id="avg-growth" class="text-3xl font-black mt-1">0%</h2>
             </div>
-          </div>
+            <div class="ice-card p-6 rounded-2xl shadow-lg border-t-4 border-sky-400">
+                <p class="text-sky-500 font-bold text-sm uppercase">목표 달성 인원</p>
+                <h2 id="goal-met" class="text-3xl font-black mt-1">0</h2>
+            </div>
+        </div>
 
-          <!-- 테이블 데이터 목록 -->
-          <div class="overflow-x-auto">
+        <!-- Table -->
+        <div class="ice-card rounded-2xl shadow-lg overflow-hidden">
             <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase bg-slate-50/50">
-                  <th class="py-3 px-5 text-center w-16">순위</th>
-                  <th class="py-3 px-5">연맹원 명칭</th>
-                  <th class="py-3 px-5 text-right">이전 투력 (05/28)</th>
-                  <th class="py-3 px-5 text-right">현재 투력 (06/11)</th>
-                  <th class="py-3 px-5 text-right w-32">성장 가치 (▲)</th>
-                  <th class="py-3 px-5 text-center w-24">성장 태그</th>
-                </tr>
-              </thead>
-              <tbody id="member-table-body" class="divide-y divide-slate-100 bg-white/50">
-                <!-- JS 동적 렌더링 -->
-              </tbody>
+                <thead class="bg-sky-50 text-sky-800 text-xs uppercase font-bold">
+                    <tr>
+                        <th class="p-4">연맹원</th>
+                        <th class="p-4 text-right">이전 기록</th>
+                        <th class="p-4 text-right">현재 기록</th>
+                        <th class="p-4 text-right">성장 폭</th>
+                    </tr>
+                </thead>
+                <tbody id="member-table-body" class="divide-y divide-sky-100">
+                    <!-- 데이터가 이곳에 삽입됩니다 -->
+                </tbody>
             </table>
-          </div>
-
-          <!-- 빈 검색 결과 화면 -->
-          <div id="empty-state" class="hidden p-16 text-center bg-white/30">
-            <i class="fa-solid fa-snowflake text-3xl text-slate-300 mb-2"></i>
-            <p class="text-slate-500 text-xs font-bold">지정한 조건에 부합하는 연맹원이 없습니다.</p>
-          </div>
         </div>
-      </section>
+    </main>
 
-      <!-- 우측: 요약 차트 및 연맹 목표 -->
-      <section class="space-y-6">
-        <!-- 실시간 TOP 5 성장 차트 -->
-        <div class="premium-card p-5 rounded-2xl border border-slate-200">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="font-black text-xs text-slate-950 uppercase tracking-wider flex items-center">
-              <i class="fa-solid fa-chart-simple text-sky-500 mr-2"></i> 실시간 성장폭 TOP 5 그래프
-            </h4>
-            <span class="text-[9px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">상승량 기준</span>
-          </div>
-          
-          <div class="space-y-3.5" id="chart-bars-container">
-            <!-- JS 동적 렌더링 -->
-          </div>
-        </div>
+    <script>
+        // [설정] 배포된 Apps Script URL 입력
+        const WEB_APP_URL = 'YOUR_WEB_APP_URL_HERE';
 
-        <!-- 연맹 공동 성장 목표 마일스톤 -->
-        <div class="premium-card p-5 rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-sky-50/20">
-          <div class="flex items-center justify-between mb-2">
-            <h4 class="font-black text-xs text-slate-950 flex items-center">
-              <i class="fa-solid fa-bullseye text-sky-500 mr-2"></i> 연맹 공동 성장 목표
-            </h4>
-            <span id="milestone-percent" class="text-xs font-extrabold text-blue-600">0%</span>
-          </div>
-          <p class="text-[10px] text-slate-500 mb-3.5 leading-relaxed">
-            모든 맹원들의 투력 성장 총합입니다. 입력창에서 직접 목표치를 실시간 조절 가능합니다.
-          </p>
-          
-          <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200/50 overflow-hidden mb-3">
-            <div id="milestone-progress-bar" class="bg-gradient-to-r from-sky-400 to-blue-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-          </div>
-          
-          <div class="flex justify-between items-center text-[10px] font-bold text-slate-500">
-            <span>누적 합계: <strong id="milestone-current" class="text-slate-800">0</strong></span>
-            <span class="flex items-center gap-1">
-              <span>목표치:</span>
-              <input 
-                type="number" 
-                id="target-goal-input" 
-                value="5000" 
-                step="500"
-                class="w-14 py-0.5 bg-slate-50 border border-slate-200 rounded text-center text-[10px] font-black text-sky-600 focus:outline-none"
-                onchange="updateTargetGoal(this.value)"
-              />
-            </span>
-          </div>
-        </div>
-      </section>
+        async function initData() {
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const data = await response.json();
+                
+                const tbody = document.getElementById('member-table-body');
+                tbody.innerHTML = '';
+                
+                data.forEach(m => {
+                    const growth = m.current - m.past;
+                    const row = `
+                        <tr class="hover:bg-sky-50/50 transition">
+                            <td class="p-4 font-bold text-sky-900">${m.name}</td>
+                            <td class="p-4 text-right">${m.past.toLocaleString()}</td>
+                            <td class="p-4 text-right">${m.current.toLocaleString()}</td>
+                            <td class="p-4 text-right font-black ${growth >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                                ${growth >= 0 ? '+' : ''}${growth.toLocaleString()}
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
 
-    </div>
-
-    <!-- 푸터 -->
-    <footer class="text-center text-[10px] text-slate-400 mt-10 pb-4">
-      <p class="font-extrabold uppercase tracking-wider text-sky-600/80">© WOS FELLOWSHIP ALLIANCE SYSTEM</p>
-      <p class="mt-0.5">연맹원 한 명 한 명의 소중한 성장이 강력한 승리의 지름길이 됩니다.</p>
-    </footer>
-
-  </div>
-
-  <!-- 맹원 상세 모달 -->
-  <div id="detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm">
-    <div class="premium-card w-full max-w-sm rounded-2xl p-5 relative border border-slate-200 shadow-xl bg-white">
-      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors">
-        <i class="fa-solid fa-circle-xmark text-lg"></i>
-      </button>
-      
-      <div class="text-center pb-3 border-b border-slate-100">
-        <div id="modal-rank-badge" class="inline-block px-2.5 py-0.5 bg-sky-50 text-sky-600 rounded-full text-[9px] font-black mb-1.5 border border-sky-100">RANK #0</div>
-        <h4 id="modal-name" class="text-lg font-black text-slate-900">맹원 정보</h4>
-        <p class="text-[10px] text-slate-500 font-bold mt-0.5">무공장비 성장 정밀 리포트</p>
-      </div>
-
-      <div class="my-4 space-y-2.5">
-        <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <span class="text-xs text-slate-500 font-semibold">이전 투력 (05/28)</span>
-          <span id="modal-past" class="font-bold text-slate-700 text-sm">0</span>
-        </div>
-        <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <span class="text-xs text-slate-500 font-semibold">현재 투력 (06/11)</span>
-          <span id="modal-current" class="font-bold text-slate-900 text-sm">0</span>
-        </div>
-        <div class="flex justify-between items-center bg-sky-50/50 p-2.5 rounded-xl border border-sky-100">
-          <span class="text-xs text-sky-900 font-bold">최종 상승 수치</span>
-          <span id="modal-growth" class="font-black text-sm text-sky-600">+0</span>
-        </div>
-      </div>
-
-      <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100 mb-4">
-        <p id="modal-comment" class="text-[11px] text-slate-600 font-medium leading-relaxed italic">"성장 진단 의견"</p>
-      </div>
-
-      <button onclick="closeModal()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-sky-500/10">
-        리포트 닫기
-      </button>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT_LOGIC_START -->
-  <script>
-    // 맹원 무공장비 데이터 설정
-    const rawMembers = [
-      { name: "마도사", past: 3787, current: 4436 },
-      { name: "T1", past: 1826, current: 2191 },
-      { name: "456번", past: 3920, current: 4289 },
-      { name: "SIMBA", past: 4193, current: 4528 },
-      { name: "Ted Chang", past: 4934, current: 5245 },
-      { name: "jshan", past: 4954, current: 5280 },
-      { name: "데헷판다곰", past: 4592, current: 4944 },
-      { name: "아보카도", past: 1748, current: 1950 },
-      { name: "곰왕 bebe", past: 2625, current: 2759 },
-      { name: "미슐랭곰", past: 10892, current: 10985 },
-      { name: "전쟁의신", past: 8432, current: 8520 },
-      { name: "백곰단장", past: 3120, current: 3240 },
-      { name: "아이스볼", past: 5200, current: 5410 },
-      { name: "오로라", past: 4110, current: 4305 },
-      { name: "한겨울", past: 2980, current: 3150 },
-      { name: "서리갈퀴", past: 6200, current: 6350 },
-      { name: "툰드라보이", past: 1540, current: 1720 }
-    ];
-
-    // 데이터 계산
-    let members = rawMembers.map(m => {
-      const growth = m.current - m.past;
-      return {
-        ...m,
-        growth: growth,
-        growthPercent: m.past > 0 ? ((growth / m.past) * 100).toFixed(1) : "0.0"
-      };
-    });
-
-    let primarySortMode = 'growth';
-    let targetGoal = 5000;
-
-    // 고급스러운 훈장 리본 SVG 일러스트레이션 소스 코드 정의 (1st, 2nd, 3rd 적용)
-    const MEDAL_SVGS = {
-      gold: `
-        <svg class="w-12 h-12 filter drop-shadow-md" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-          <!-- 뒤쪽 리본 장식 -->
-          <path d="M35 50 L22 105 L42 93 L50 65 Z" fill="#EF4444"/>
-          <path d="M65 50 L78 105 L58 93 L50 65 Z" fill="#3B82F6"/>
-          <!-- 메달 테두리 및 그림자 바디 -->
-          <circle cx="50" cy="50" r="32" fill="#D97706"/>
-          <circle cx="50" cy="50" r="28" fill="#FBBF24"/>
-          <circle cx="50" cy="50" r="23" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3 2"/>
-          <!-- 중앙 순위 텍스트 -->
-          <text x="50" y="57" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="900" fill="#78350F" text-anchor="middle">1st</text>
-        </svg>
-      `,
-      silver: `
-        <svg class="w-12 h-12 filter drop-shadow-md" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-          <!-- 뒤쪽 리본 장식 -->
-          <path d="M35 50 L22 105 L42 93 L50 65 Z" fill="#0EA5E9"/>
-          <path d="M65 50 L78 105 L58 93 L50 65 Z" fill="#1D4ED8"/>
-          <!-- 메달 테두리 및 그림자 바디 -->
-          <circle cx="50" cy="50" r="32" fill="#475569"/>
-          <circle cx="50" cy="50" r="28" fill="#CBD5E1"/>
-          <circle cx="50" cy="50" r="23" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3 2"/>
-          <!-- 중앙 순위 텍스트 -->
-          <text x="50" y="57" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="900" fill="#1E293B" text-anchor="middle">2nd</text>
-        </svg>
-      `,
-      bronze: `
-        <svg class="w-12 h-12 filter drop-shadow-md" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-          <!-- 뒤쪽 리본 장식 -->
-          <path d="M35 50 L22 105 L42 93 L50 65 Z" fill="#22C55E"/>
-          <path d="M65 50 L78 105 L58 93 L50 65 Z" fill="#EA580C"/>
-          <!-- 메달 테두리 및 그림자 바디 -->
-          <circle cx="50" cy="50" r="32" fill="#92400E"/>
-          <circle cx="50" cy="50" r="28" fill="#F97316"/>
-          <circle cx="50" cy="50" r="23" fill="none" stroke="#C2410C" stroke-width="1.5" stroke-dasharray="3 2"/>
-          <!-- 중앙 순위 텍스트 -->
-          <text x="50" y="57" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="900" fill="#451A03" text-anchor="middle">3rd</text>
-        </svg>
-      `
-    };
-
-    // 테이블 행에 알맞은 미니 사이즈 훈장 SVG 리턴
-    function getMiniMedalSVG(type) {
-      if (type === 'gold') {
-        return `
-          <svg class="w-7 h-7 filter drop-shadow-sm" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-            <path d="M35 50 L22 105 L42 93 L50 65 Z" fill="#EF4444"/>
-            <path d="M65 50 L78 105 L58 93 L50 65 Z" fill="#3B82F6"/>
-            <circle cx="50" cy="50" r="32" fill="#D97706"/>
-            <circle cx="50" cy="50" r="28" fill="#FBBF24"/>
-            <text x="50" y="57" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="900" fill="#78350F" text-anchor="middle">1st</text>
-          </svg>
-        `;
-      } else if (type === 'silver') {
-        return `
-          <svg class="w-7 h-7 filter drop-shadow-sm" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-            <path d="M35 50 L22 105 L42 93 L50 65 Z" fill="#0EA5E9"/>
-            <path d="M65 50 L78 105 L58 93 L50 65 Z" fill="#1D4ED8"/>
-            <circle cx="50" cy="50" r="32" fill="#475569"/>
-            <circle cx="50" cy="50" r="28" fill="#CBD5E1"/>
-            <text x="50" y="57" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="900" fill="#1E293B" text-anchor="middle">2nd</text>
-          </svg>
-        `;
-      } else if (type === 'bronze') {
-        return `
-          <svg class="w-7 h-7 filter drop-shadow-sm" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-            <path d="M35 50 L22 105 L42 93 L50 65 Z" fill="#22C55E"/>
-            <path d="M65 50 L78 105 L58 93 L50 65 Z" fill="#EA580C"/>
-            <circle cx="50" cy="50" r="32" fill="#92400E"/>
-            <circle cx="50" cy="50" r="28" fill="#F97316"/>
-            <text x="50" y="57" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="900" fill="#451A03" text-anchor="middle">3rd</text>
-          </svg>
-        `;
-      }
-      return '';
-    }
-
-    function showToast(message, type = "success") {
-      const container = document.getElementById("toast-container");
-      const toast = document.createElement("div");
-      toast.className = `px-3.5 py-2.5 rounded-xl border text-xs font-bold flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 duration-200 pointer-events-auto shadow-md ${
-        type === "success" 
-          ? "bg-white text-emerald-600 border-emerald-100 shadow-emerald-500/5" 
-          : "bg-white text-rose-600 border-rose-100 shadow-rose-500/5"
-      }`;
-      
-      const icon = type === "success" ? "fa-circle-check" : "fa-triangle-exclamation";
-      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-      container.appendChild(toast);
-
-      setTimeout(() => {
-        toast.classList.remove("translate-y-2", "opacity-0");
-      }, 50);
-
-      setTimeout(() => {
-        toast.classList.add("translate-y-2", "opacity-0");
-        setTimeout(() => toast.remove(), 200);
-      }, 3000);
-    }
-
-    function calculateGlobalStats() {
-      let totalGrowth = 0;
-      members.forEach(m => {
-        totalGrowth += m.growth;
-      });
-
-      const progressPercent = Math.min(((totalGrowth / targetGoal) * 100), 100).toFixed(1);
-      document.getElementById('milestone-percent').innerText = `${progressPercent}%`;
-      document.getElementById('milestone-current').innerText = totalGrowth.toLocaleString();
-      
-      setTimeout(() => {
-        document.getElementById('milestone-progress-bar').style.width = `${progressPercent}%`;
-      }, 300);
-    }
-
-    // 목표치 입력 제어
-    function updateTargetGoal(val) {
-      const parsed = parseInt(val);
-      if (parsed > 0) {
-        targetGoal = parsed;
-        calculateGlobalStats();
-        showToast(`목표 성장치가 ${parsed.toLocaleString()} CP로 수정되었습니다.`);
-      }
-    }
-
-    // 명예의 전당 TOP 3 랜더링 (금메달, 은메달, 동메달 SVG 적용)
-    function renderPodium() {
-      const sortedByPercent = [...members].sort((a, b) => parseFloat(b.growthPercent) - parseFloat(a.growthPercent));
-      const top3 = sortedByPercent.slice(0, 3);
-      const podiumContainer = document.getElementById('podium-container');
-      podiumContainer.innerHTML = '';
-
-      const badges = [
-        { 
-          rankName: "금메달 MVP", 
-          badgeColor: "bg-amber-100 text-amber-700 border-amber-200", 
-          medalSvg: MEDAL_SVGS.gold,
-          cardBorder: "border-amber-300 bg-amber-50/10" 
-        },
-        { 
-          rankName: "은메달 등극", 
-          badgeColor: "bg-slate-100 text-slate-700 border-slate-200", 
-          medalSvg: MEDAL_SVGS.silver,
-          cardBorder: "border-slate-300 bg-slate-50/10" 
-        },
-        { 
-          rankName: "동메달 달성", 
-          badgeColor: "bg-orange-100 text-orange-700 border-orange-200", 
-          medalSvg: MEDAL_SVGS.bronze,
-          cardBorder: "border-orange-200 bg-orange-50/5" 
-        }
-      ];
-
-      top3.forEach((player, index) => {
-        const badge = badges[index];
-        const cardHTML = `
-          <div onclick="openModalByName('${player.name}')" class="premium-card border-2 ${badge.cardBorder} p-6 rounded-2xl relative flex items-center justify-between hover-lift cursor-pointer">
-            <div class="flex items-center space-x-3.5">
-              <!-- 원형 SVG 메달 배치 -->
-              <div class="flex-shrink-0 select-none">
-                ${badge.medalSvg}
-              </div>
-              <div>
-                <h4 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">
-                  ${player.name}
-                </h4>
-                <p class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">최정예 성장대원</p>
-              </div>
-            </div>
-
-            <div class="text-right">
-              <span class="inline-block px-2 py-0.5 rounded text-[9px] font-extrabold ${badge.badgeColor} border mb-1.5 shadow-sm">
-                ${badge.rankName}
-              </span>
-              <div class="text-sm font-black text-sky-600">
-                +${player.growth.toLocaleString()} CP
-              </div>
-              <div class="text-[10px] font-bold text-sky-600/90">
-                ▲ ${player.growthPercent}%
-              </div>
-            </div>
-          </div>
-        `;
-        podiumContainer.innerHTML += cardHTML;
-      });
-    }
-
-    function renderChart() {
-      const sortedByGrowth = [...members].sort((a, b) => b.growth - a.growth);
-      const top5 = sortedByGrowth.slice(0, 5);
-      const maxGrowth = top5.length > 0 ? Math.max(...top5.map(p => p.growth), 1) : 1;
-      
-      const chartContainer = document.getElementById('chart-bars-container');
-      chartContainer.innerHTML = '';
-
-      top5.forEach((player, index) => {
-        const barWidth = ((player.growth / maxGrowth) * 100).toFixed(1);
-        let barColor = 'bg-gradient-to-r from-sky-400 to-sky-500';
-        if (index === 0) barColor = 'bg-gradient-to-r from-amber-400 to-amber-500';
-        else if (index === 1) barColor = 'bg-gradient-to-r from-cyan-400 to-sky-400';
-
-        const chartRow = `
-          <div class="space-y-1">
-            <div class="flex justify-between items-center text-xs font-bold text-slate-600">
-              <span class="flex items-center">
-                <span class="w-4 h-4 text-[9px] flex items-center justify-center text-white font-black bg-slate-800 rounded-full mr-2">${index + 1}</span>
-                ${player.name}
-              </span>
-              <span class="text-sky-600 font-black">+${player.growth.toLocaleString()} (▲${player.growthPercent}%)</span>
-            </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/30">
-              <div class="${barColor} h-full rounded-full transition-all duration-1000 ease-out" style="width: ${barWidth}%"></div>
-            </div>
-          </div>
-        `;
-        chartContainer.innerHTML += chartRow;
-      });
-    }
-
-    function setPrimarySort(mode) {
-      primarySortMode = mode;
-      
-      const btnGrowth = document.getElementById('btn-sort-growth');
-      const btnPower = document.getElementById('btn-sort-power');
-
-      if (mode === 'growth') {
-        btnGrowth.className = "px-2.5 py-1 text-[11px] font-black rounded-md transition-colors bg-sky-600 text-white shadow-sm";
-        btnPower.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
-      } else {
-        btnPower.className = "px-2.5 py-1 text-[11px] font-black rounded-md transition-colors bg-sky-600 text-white shadow-sm";
-        btnGrowth.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
-      }
-
-      renderTable();
-      calculateGlobalStats();
-      renderPodium();
-      renderChart();
-    }
-
-    // 명단 테이블 렌더링 (금/은/동 SVG 훈장 적용 및 순위 배지)
-    function renderTable() {
-      const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
-      const tagFilter = document.getElementById('tag-filter').value;
-      const tableBody = document.getElementById('member-table-body');
-      const emptyState = document.getElementById('empty-state');
-
-      let filtered = [...members];
-
-      if (searchVal) {
-        filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
-      }
-
-      if (tagFilter !== 'all') {
-        filtered = filtered.filter(m => {
-          if (tagFilter === 'high') return m.growth >= 300;
-          if (tagFilter === 'mid') return m.growth >= 100 && m.growth < 300;
-          if (tagFilter === 'low') return m.growth < 100;
-        });
-      }
-
-      if (primarySortMode === 'growth') {
-        filtered.sort((a, b) => parseFloat(b.growthPercent) - parseFloat(a.growthPercent) || b.current - a.current);
-      } else if (primarySortMode === 'power') {
-        filtered.sort((a, b) => b.current - a.current);
-      }
-
-      tableBody.innerHTML = '';
-
-      if (filtered.length === 0) {
-        emptyState.classList.remove('hidden');
-        return;
-      }
-      emptyState.classList.add('hidden');
-
-      filtered.forEach((member, index) => {
-        let rankBadgeClass = "text-slate-500 bg-white border border-slate-200";
-        let rankBadgeContent = index + 1;
-
-        // 테이블의 1, 2, 3위도 일관성 있는 원형 SVG 훈장 아이콘으로 노출
-        if (index === 0) {
-          rankBadgeClass = "border-transparent bg-transparent flex items-center justify-center";
-          rankBadgeContent = getMiniMedalSVG('gold');
-        } else if (index === 1) {
-          rankBadgeClass = "border-transparent bg-transparent flex items-center justify-center";
-          rankBadgeContent = getMiniMedalSVG('silver');
-        } else if (index === 2) {
-          rankBadgeClass = "border-transparent bg-transparent flex items-center justify-center";
-          rankBadgeContent = getMiniMedalSVG('bronze');
+                document.getElementById('analysis-date-range').innerHTML = '<i class="fa-solid fa-check mr-2 text-emerald-500"></i> 최신 데이터 반영됨';
+                updateStats(data);
+            } catch (e) {
+                console.error("데이터 로드 실패", e);
+                document.getElementById('analysis-date-range').innerText = "데이터 연결 오류";
+            }
         }
 
-        let tagHTML = "";
-        if (member.growth >= 300) {
-          tagHTML = `<span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-blue-50 text-blue-600 border border-blue-100">폭풍 성실</span>`;
-        } else if (member.growth >= 100) {
-          tagHTML = `<span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-sky-50 text-sky-600 border border-sky-100">안정 성장</span>`;
-        } else {
-          tagHTML = `<span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-slate-50 text-slate-500 border border-slate-100">현상 유지</span>`;
+        function updateStats(data) {
+            document.getElementById('total-members').innerText = data.length;
+            document.getElementById('goal-met').innerText = data.filter(m => (m.current - m.past) > 5000).length;
+            // 평균 성장률 계산 등 추가 가능
         }
 
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-sky-50/50 cursor-pointer transition-colors";
-        tr.onclick = () => openModal(member, index + 1);
-
-        tr.innerHTML = `
-          <td class="py-3 px-5 text-center">
-            <div class="w-7 h-7 rounded-md ${rankBadgeClass}">
-              ${rankBadgeContent}
-            </div>
-          </td>
-          <td class="py-3 px-5">
-            <div class="font-extrabold text-slate-900 text-xs">${member.name}</div>
-            <span class="text-[8px] text-sky-600 font-semibold tracking-wider">FELLOWSHIP</span>
-          </td>
-          <td class="py-3 px-5 text-right font-medium text-slate-400 text-xs">
-            ${member.past.toLocaleString()}
-          </td>
-          <td class="py-3 px-5 text-right font-bold text-slate-700 text-xs">
-            ${member.current.toLocaleString()}
-          </td>
-          <td class="py-3 px-5 text-right">
-            <div class="flex items-center justify-end space-x-1.5">
-              <span class="text-xs font-black text-sky-600">+${member.growth.toLocaleString()}</span>
-              <span class="text-[9px] font-black text-sky-600 bg-sky-50 border border-sky-100 px-1.5 py-0.2 rounded">
-                +${member.growthPercent}%
-              </span>
-            </div>
-          </td>
-          <td class="py-3 px-5 text-center">
-            ${tagHTML}
-          </td>
-        `;
-        tableBody.appendChild(tr);
-      });
-    }
-
-    function copyAllianceReport() {
-      let totalGrowth = 0;
-      members.forEach(m => totalGrowth += m.growth);
-      const sorted = [...members].sort((a, b) => b.growth - a.growth);
-      const top3 = sorted.slice(0, 3);
-
-      let text = `❄️ WOS 무공장비 성장 2주 브리핑 ❄️\n`;
-      text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `📅 분석 기간: 05월 28일 ➔ 06월 11일\n`;
-      text += `🚀 연맹 누적 총 상승량: +${totalGrowth.toLocaleString()} CP\n`;
-      text += `🎯 공동 성장 달성도: ${((totalGrowth / targetGoal) * 100).toFixed(1)}%\n\n`;
-      text += `🏆 영광의 명예의 전당 (상승 TOP 3):\n`;
-      
-      top3.forEach((p, idx) => {
-        if (p) text += `  ${idx + 1}위. ${p.name} (+${p.growth.toLocaleString()} CP, +${p.growthPercent}%)\n`;
-      });
-      text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `대시보드를 확인하여 연맹 정련 상태를 추적해보세요!`;
-
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        showToast("연맹 브리핑 요약 정보가 클립보드에 복사되었습니다!");
-      } catch (err) {
-        showToast("복사에 실패했습니다.", "error");
-      }
-      document.body.removeChild(textarea);
-    }
-
-    function openModalByName(name) {
-      const idx = members.findIndex(m => m.name === name);
-      if (idx !== -1) {
-        const sorted = [...members].sort((a, b) => b.growth - a.growth);
-        const rank = sorted.findIndex(r => r.name === name) + 1;
-        openModal(members[idx], rank);
-      }
-    }
-
-    function openModal(member, rank) {
-      document.getElementById('modal-rank-badge').innerText = `성장 기준 #${rank}위`;
-      document.getElementById('modal-name').innerText = member.name;
-      document.getElementById('modal-past').innerText = `${member.past.toLocaleString()} CP`;
-      document.getElementById('modal-current').innerText = `${member.current.toLocaleString()} CP`;
-      
-      const growthSpan = document.getElementById('modal-growth');
-      growthSpan.innerText = `+${member.growth.toLocaleString()} CP (${member.growthPercent}%)`;
-
-      let comment = "";
-      if (member.growth >= 300) {
-        comment = `🔥 대성공! 한계를 극복하고 폭풍 성장을 이룩했습니다. 연맹 전선에 중추적인 버프와 기여를 전파하고 계십니다!`;
-      } else if (member.growth >= 100) {
-        comment = `❄️ 믿음직한 맹원입니다. 성실한 장비 강화를 기반으로 강력한 보너스 전투력을 확보하고 계십니다.`;
-      } else if (member.growth > 0) {
-        comment = `⛄ 차근차근 전진 중입니다. 다음 분석 주기에 맞춰 장비 성련이나 고유 강화를 가속해 명예의 전당을 획득하세요!`;
-      } else {
-        comment = `🛌 이번 주기 전력 충전 단계입니다. 성련 부재 혹은 보존 주기로 판명되며, 빠른 다음 성장을 권장합니다.`;
-      }
-      document.getElementById('modal-comment').innerText = comment;
-
-      document.getElementById('detail-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('detail-modal').classList.add('hidden');
-    }
-  </script>
+        initData();
+    </script>
 </body>
 </html>
