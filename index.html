@@ -165,7 +165,7 @@
                 <i class="fa-solid fa-caret-down absolute right-2 top-2.5 text-slate-400 text-[9px] pointer-events-none"></i>
               </div>
 
-              <!-- 정렬 토글 버튼 -->
+              <!-- 정렬 토글 버튼 (상승량 기준 정렬 단추가 중간에 추가되었습니다) -->
               <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200/60">
                 <button 
                   id="btn-sort-growth" 
@@ -173,6 +173,13 @@
                   class="px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-600 hover:text-slate-900"
                 >
                   성장률 기준
+                </button>
+                <button 
+                  id="btn-sort-amount" 
+                  onclick="setPrimarySort('amount')" 
+                  class="px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-600 hover:text-slate-900"
+                >
+                  상승량 기준
                 </button>
                 <button 
                   id="btn-sort-power" 
@@ -265,7 +272,7 @@
 
     <!-- 푸터 -->
     <footer class="text-center text-[10px] text-slate-400 mt-10 pb-4">
-      <p class="font-extrabold uppercase tracking-wider text-sky-600/80">© WOS 1953 곰연맹 by 판다곰 PANDA GOM ALLIANCE SYSTEM</p>
+      <p class="font-extrabold uppercase tracking-wider text-sky-600/80">© WOS FELLOWSHIP ALLIANCE SYSTEM</p>
       <p class="mt-0.5">연맹원 한 명 한 명의 소중한 성장이 강력한 승리의 지름길이 됩니다.</p>
     </footer>
 
@@ -641,14 +648,21 @@
       primarySortMode = mode;
       
       const btnGrowth = document.getElementById('btn-sort-growth');
+      const btnAmount = document.getElementById('btn-sort-amount');
       const btnPower = document.getElementById('btn-sort-power');
 
+      // 모든 버튼 스타일 비활성화 세팅 초기화
+      btnGrowth.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
+      btnAmount.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
+      btnPower.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
+
+      // 현재 선택된 정렬 방식 버튼 활성화 마크업 지정
       if (mode === 'growth') {
         btnGrowth.className = "px-2.5 py-1 text-[11px] font-black rounded-md transition-colors bg-sky-600 text-white shadow-sm";
-        btnPower.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
-      } else {
+      } else if (mode === 'amount') {
+        btnAmount.className = "px-2.5 py-1 text-[11px] font-black rounded-md transition-colors bg-sky-600 text-white shadow-sm";
+      } else if (mode === 'power') {
         btnPower.className = "px-2.5 py-1 text-[11px] font-black rounded-md transition-colors bg-sky-600 text-white shadow-sm";
-        btnGrowth.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors text-slate-500 hover:text-slate-800";
       }
 
       renderTable();
@@ -678,9 +692,11 @@
         });
       }
 
-      // 정렬 기준 배분
+      // 정렬 기준 다변화 배분 (성장률 / 상승 수치량 / 현재 상위투력)
       if (primarySortMode === 'growth') {
         filtered.sort((a, b) => parseFloat(b.growthPercent) - parseFloat(a.growthPercent) || b.current - a.current);
+      } else if (primarySortMode === 'amount') {
+        filtered.sort((a, b) => b.growth - a.growth || b.current - a.current);
       } else if (primarySortMode === 'power') {
         filtered.sort((a, b) => b.current - a.current);
       }
@@ -697,7 +713,7 @@
         let rankBadgeClass = "text-slate-500 bg-white border border-slate-200";
         let rankBadgeContent = index + 1;
 
-        // 원형 성적 기준 매칭 순위
+        // 원형 성적 기준 매칭 순위 산정
         const rank = members.findIndex(m => m.name === member.name) + 1;
 
         if (rank === 1) {
@@ -776,7 +792,7 @@
         if (p) text += `  ${idx + 1}위. ${p.name} (+${p.growth.toLocaleString()} CP, +${p.growthPercent}%)\n`;
       });
       text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `대시보드를 확인하여 연맹 정련 상태를추적해보세요!`;
+      text += `대시보드를 확인하여 연맹 정련 상태를 추적해보세요!`;
 
       const textarea = document.createElement("textarea");
       textarea.value = text;
