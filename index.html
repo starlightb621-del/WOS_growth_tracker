@@ -11,7 +11,71 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
     
-    body {
+    body {<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOS 성장 리포트</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;800&display=swap');
+    body { font-family: 'Pretendard', sans-serif; background: #f1f5f9; }
+    .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div class="max-w-4xl mx-auto">
+    <header class="mb-8">
+      <h1 class="text-3xl font-extrabold text-slate-800">WOS 성장 리포트</h1>
+      <p id="status" class="text-sm text-slate-500 mt-2">데이터를 불러오는 중입니다...</p>
+    </header>
+
+    <div class="glass rounded-2xl shadow-xl overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-800 text-white">
+            <th class="p-4">이름</th>
+            <th class="p-4 text-right">이전</th>
+            <th class="p-4 text-right">현재</th>
+            <th class="p-4 text-right">성장</th>
+          </tr>
+        </thead>
+        <tbody id="table-body" class="divide-y divide-slate-200"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxtWTumh2Ma0zSsxFkeMp37_54YC6TeXgMyHsFmfYy-sUSmVS22OMt5Ej3IQ2z_P1X8gw/exec';
+
+    async function loadData() {
+      try {
+        const res = await fetch(GAS_URL);
+        const data = await res.json();
+        const tbody = document.getElementById('table-body');
+        
+        data.sort((a, b) => (b.current - b.past) - (a.current - a.past)).forEach(m => {
+          const growth = m.current - m.past;
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-bold">${m.name}</td>
+              <td class="p-4 text-right text-slate-500">${m.past.toLocaleString()}</td>
+              <td class="p-4 text-right text-slate-500">${m.current.toLocaleString()}</td>
+              <td class="p-4 text-right font-bold text-sky-600">+${growth.toLocaleString()}</td>
+            </tr>
+          `;
+        });
+        document.getElementById('status').innerText = "최신 데이터가 반영되었습니다.";
+      } catch (err) {
+        document.getElementById('status').innerText = "데이터를 불러오는 데 실패했습니다.";
+      }
+    }
+    loadData();
+  </script>
+</body>
+</html>
       font-family: 'Noto Sans KR', sans-serif;
       background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 50%, #e0f2fe 100%);
       background-attachment: fixed;
