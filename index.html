@@ -78,7 +78,7 @@
       <!-- 상단 액션 바 -->
       <div class="flex flex-col sm:flex-row items-center gap-2.5">
         <span class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-700 border border-sky-100 shadow-sm">
-          <i class="fa-solid fa-calendar-days mr-2 text-sky-500"></i> 분석 주기: 05/28 → 06/11
+          <i class="fa-solid fa-calendar-days mr-2 text-sky-500"></i> 분석 주기: <span id="header-dates">05/28 → 06/11</span>
         </span>
         <button id="btn-refresh" onclick="fetchData()" class="px-3.5 py-1.5 bg-sky-500 hover:bg-sky-600 active:scale-95 text-white text-xs font-bold rounded-lg transition-all shadow-sm flex items-center gap-1.5">
           <i id="refresh-icon" class="fa-solid fa-arrows-rotate"></i> 데이터 새로고침
@@ -199,8 +199,8 @@
                 <tr class="border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase bg-slate-50/50">
                   <th class="py-3 px-5 text-center w-16">순위</th>
                   <th class="py-3 px-5">연맹원 명칭 / 이전 순위 변동</th>
-                  <th class="py-3 px-5 text-right">이전 투력 (05/28)</th>
-                  <th class="py-3 px-5 text-right">현재 투력 (06/11)</th>
+                  <th class="py-3 px-5 text-right">이전 투력 (<span id="table-past-date">05/28</span>)</th>
+                  <th class="py-3 px-5 text-right">현재 투력 (<span id="table-current-date">06/11</span>)</th>
                   <th class="py-3 px-5 text-right w-32">성장 가치 (▲)</th>
                   <th class="py-3 px-5 text-center w-24">성장 태그</th>
                 </tr>
@@ -293,11 +293,11 @@
 
       <div class="my-4 space-y-2.5">
         <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <span class="text-xs text-slate-500 font-semibold">이전 투력 (05/28)</span>
+          <span class="text-xs text-slate-500 font-semibold" id="modal-past-label">이전 투력 (05/28)</span>
           <span id="modal-past" class="font-bold text-slate-700 text-sm">0</span>
         </div>
         <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <span class="text-xs text-slate-500 font-semibold">현재 투력 (06/11)</span>
+          <span class="text-xs text-slate-500 font-semibold" id="modal-current-label">현재 투력 (06/11)</span>
           <span id="modal-current" class="font-bold text-slate-900 text-sm">0</span>
         </div>
         <div class="flex justify-between items-center bg-sky-50/50 p-2.5 rounded-xl border border-sky-100">
@@ -319,7 +319,13 @@
   <!-- JAVASCRIPT_LOGIC_START -->
   <script>
     // 1. 배포하신 구글 앱스 스크립트(GAS) 웹 앱 URL
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxtWTumh2Ma0zSsxFkeMp37_54YC6TeXgMyHsFmfYy-sUSmVS22OMt5Ej3IQ2z_P1X8gw/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz5VNaRByOjw4ay-OMkCyuU3DT8ymKVU_uzPL6QQuSda2-QtaRL-Rb3MFZgCiubOgbc/exec";
+
+    // 동적으로 설정할 날짜 상태 정보 (기본값 설정 후 연동 시 가변 처리)
+    let datePastRaw = "2026. 5. 28";
+    let dateCurrentRaw = "2026. 6. 11";
+    let datePastFormatted = "05/28";
+    let dateCurrentFormatted = "06/11";
 
     // 연동 실패 시 복구용 기본 데이터 세트 (오리지널 데이터값 유지)
     const defaultLocalMembers = [
@@ -416,6 +422,43 @@
       return '';
     }
 
+    // 날짜 포맷 변환용 유틸리티 함수 (예: "2026. 6. 11" 또는 "2026. 06. 11" -> "06/11")
+    function formatDateString(dateStr) {
+      if (!dateStr) return "00/00";
+      
+      // 혹시 날짜 형식 내 점(.), 대시(-), 슬래시(/) 등 공백 제거 및 토큰화
+      const parts = dateStr.split(/[.\-\/\s]+/).filter(Boolean);
+      
+      // "2026", "6", "11" 순으로 올 경우 월과 일을 감지
+      if (parts.length >= 3) {
+        let month = parseInt(parts[1], 10);
+        let day = parseInt(parts[2], 10);
+        
+        if (!isNaN(month) && !isNaN(day)) {
+          const mm = month < 10 ? '0' + month : month;
+          const dd = day < 10 ? '0' + day : day;
+          return `${mm}/${dd}`;
+        }
+      }
+      
+      // 날짜 변환이 안 될 시 원본 5자리 반환 시도
+      return dateStr.substring(0, 10);
+    }
+
+    // 날짜 텍스트 동적 업데이트 적용 함수
+    function updateDateLabels() {
+      // 상단 헤더 주기 알림
+      document.getElementById('header-dates').innerText = `${datePastFormatted} → ${dateCurrentFormatted}`;
+      
+      // 전체 순위 테이블 헤더 날짜 표시
+      document.getElementById('table-past-date').innerText = datePastFormatted;
+      document.getElementById('table-current-date').innerText = dateCurrentFormatted;
+
+      // 모달 내부 날짜 레이블
+      document.getElementById('modal-past-label').innerText = `이전 투력 (${datePastFormatted})`;
+      document.getElementById('modal-current-label').innerText = `현재 투력 (${dateCurrentFormatted})`;
+    }
+
     // 초기 실행
     document.addEventListener("DOMContentLoaded", () => {
       fetchData();
@@ -446,8 +489,53 @@
         if (!response.ok) throw new Error("API 수신 상태 불안정");
 
         const data = await response.json();
+        
+        // 데이터 구조에서 날짜 배열 추출 및 자동 맵핑 기능 고도화
         if (data && data.length > 0 && !data.error) {
-          processMembersData(data);
+          
+          // 데이터 중 첫 행을 기준으로 날짜 키 목록들을 동적 추출
+          // (일반적인 GAS 리턴 데이터 스키마에서 past, current 이외에 날짜 배열 정보가 있는 경우 대응)
+          // 구글 시트 데이터는 유동적이므로, 각 연맹원 객체 키 중 숫자 혹은 날짜 포맷 형태의 키를 자동으로 감지합니다.
+          const sampleItem = data[0];
+          const allKeys = Object.keys(sampleItem);
+          
+          // 연도나 날짜 형태를 띄는 유효한 헤더 정보 필터링 (예: "2026. 5. 28" 등)
+          const dateKeys = allKeys.filter(key => {
+            return key.includes('.') || key.includes('-') || key.includes('/') || !isNaN(Date.parse(key));
+          });
+
+          // 날짜 키 정렬 (오름차순)
+          dateKeys.sort((a, b) => {
+            return new Date(a.replace(/\./g, '-')) - new Date(b.replace(/\./g, '-'));
+          });
+
+          if (dateKeys.length >= 2) {
+            // 가장 마지막 두 개의 날짜를 각각 '이전 날짜'와 '현재 날짜'로 결정
+            datePastRaw = dateKeys[dateKeys.length - 2];
+            dateCurrentRaw = dateKeys[dateKeys.length - 1];
+            
+            datePastFormatted = formatDateString(datePastRaw);
+            dateCurrentFormatted = formatDateString(dateCurrentRaw);
+          } else {
+            // 날짜 키가 2개 미만일 시 기본 API 스키마 키 명칭을 감안하여 백업 처리
+            datePastFormatted = "05/28";
+            dateCurrentFormatted = "06/11";
+          }
+
+          // 화면 내 모든 하드코딩 날짜 일괄 교체
+          updateDateLabels();
+
+          // 정규화된 데이터 가공 처리
+          const formattedData = data.map(m => {
+            // 동적으로 찾은 가장 최신 날짜 두 개의 값 대입
+            return {
+              name: m.name || m.이름 || m["이름"],
+              past: Number(m[datePastRaw]) || Number(m.past) || 0,
+              current: Number(m[dateCurrentRaw]) || Number(m.current) || 0
+            };
+          });
+
+          processMembersData(formattedData);
           document.getElementById("api-error-state").classList.add("hidden");
           showToast("구글 스프레드시트 데이터가 실시간으로 완벽히 동기화되었습니다!");
         } else {
@@ -457,6 +545,11 @@
         console.warn("구글 연동 실패 -> 로컬 예비 데이터 대체 구동:", err);
         document.getElementById("api-error-state").classList.remove("hidden");
         
+        // 오류 대피 시 기본 하드코딩 일자 복원
+        datePastFormatted = "05/28";
+        dateCurrentFormatted = "06/11";
+        updateDateLabels();
+
         // 로컬 정적 데이터 백업 구동
         processMembersData(defaultLocalMembers);
         showToast("가상 오프라인 데이터를 로드했습니다.", "error");
@@ -518,6 +611,7 @@
       }
     }
 
+    // 알림 토스트 UI 구현
     function showToast(message, type = "success") {
       const container = document.getElementById("toast-container");
       const toast = document.createElement("div");
@@ -829,7 +923,7 @@
 
       let text = `❄️ WOS 무공장비 성장 2주 브리핑 ❄️\n`;
       text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `📅 분석 기간: 05월 28일 ➔ 06월 11일\n`;
+      text += `📅 분석 기간: ${datePastFormatted} ➔ ${dateCurrentFormatted}\n`;
       text += `🚀 연맹 누적 총 상승량: +${totalGrowth.toLocaleString()} CP\n`;
       text += `🎯 공동 성장 달성도: ${((totalGrowth / targetGoal) * 100).toFixed(1)}%\n\n`;
       text += `🏆 영광의 명예의 전당 (상승 TOP 3):\n`;
